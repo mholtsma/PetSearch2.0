@@ -1,0 +1,26 @@
+{{extend 'layout.html'}}
+
+<div class="select_pet">
+    <div class="single_pet_button">
+    {{for p in pet_list:}}
+       {{if p.id == int(request.args(0)):}}
+        {{ pid = p['id'] }}
+        <div>
+            {{if auth.user_id is None:}}
+            {{else:}}
+                {{=A('Edit', _class='btn btn-success', _href=URL('default', 'edit', args=[pid], user_signature=True))}}
+                {{=A('Delete', _class='btn btn-danger', _href=URL('default', 'delete', args=[pid], user_signature=True))}}
+            {{pass}}
+        </div>
+        </div>
+        <div class="pet_title_wrapper">
+       <div><h1 class="pet_name"><b>{{=p.name}}</b></h1></div>
+       <div class="date_posted"><h4>This pet was posted on:{{=p.posted}}</h4></div>
+        </div>
+    <div class="pet_wrapper">
+         <div class="pet_description">{{=p.description}}</div>
+       <div class="pet_picture"><img src="{{=URL('default', 'download')}}/{{=p.pet_image}}" height="400" width="400"/></div>
+    </div>
+       {{pass}}
+    {{pass}}
+    </div>

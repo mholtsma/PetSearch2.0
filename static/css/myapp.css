@@ -1,0 +1,73 @@
+/* line 1, ../sass/_main.scss */
+.colorful {
+  color: #bb8833;
+}
+
+div.colorful{
+  color: #739001;
+}
+
+div.mydiv {
+   color: #FF0000;
+   line-height: 120%;
+  #repeat{
+     font-weight: italic;
+  }
+}
+
+div.search{
+   background-color: #FFFFFF;
+   padding: 20px;
+   margin: 30px;
+   /*border: 1px solid #111111; */
+   box-shadow(rgba(#111, 0.5) 0 4px 10px 2px);
+   display: inline-block;
+}
+
+
+.title{
+    text-align: center;
+    position: relative;
+}
+
+.search_title_wrapper{
+    margin-top: -5%;
+}
+
+.title_block{
+    background-color: #9FD1D7;
+    color: #2C2F2F;
+    display: inline;
+}
+
+.User{
+    margin-top: 2%;
+}
+
+.pet_picture{
+    border: 3px solid #111111;
+    float: left;
+    margin-top: -3%;
+    width: 405px;
+    display:inline;
+}
+.pet_wrapper{
+    padding: 5%;
+    margin-top: -7%;
+    display:inline;
+}
+
+.pet_description{
+    color: #2C2F2F;
+    margin: 10px;
+    margin-left: 32%;
+}
+
+.single_pet_button{
+    margin-left: 5px;
+    margin-bottom: 3%;
+}
+
+.load_all_pets{
+    margin-top: 2%;
+}

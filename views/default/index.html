@@ -1,0 +1,210 @@
+{{extend 'layout.html'}}
+
+
+<div id="target"></div>
+
+
+
+<script id="template" type="text/ractive">
+
+<div class="search_title_wrapper">
+<div class="title_block"><div class="petsearch">
+    Cat/Dog: Male/Female:
+    <div class="drop_down">
+    <select value="{% Cat_or_Dog %}">
+        <option value="any">Any</option>
+        <option value="cat">Cat</option>
+        <option value="dog">Dog</option>
+    </select>
+    <select value="{% gender %}">
+        <option value="any">Any</option>
+        <option value="male">Male</option>
+        <option value="female">Female</option>
+    </select>
+    </div>
+
+    <div id="line_check"><input type="checkbox" checked="{% house_trained %}"/>House Trained</div>
+    <div id="line_check"><input type="checkbox" checked="{% kid_friendly %}"/>Kid Friendly</div>
+    <div class="line_check"><input type="checkbox" checked="{% pet_friendly %}"/>Pet Friendly</div>
+    <div class="line_check"><input type="checkbox" checked="{% outdoor_pet %}"/>Outdoor Pet</div>
+    <div class="line_check"><input type="checkbox" checked="{% indoor_pet %}"/>Indoor Pet</div>
+    <div class="line_check"><input type="checkbox" checked="{% frequent_exercise %}"/>Frequent Exercise </div>
+    <div class="line_check"><input type="checkbox" checked="{% infrequent_exercise %}"/>Infrequent Exercise</div>
+    <div class="line_check"><input type="checkbox" checked="{% young_pet %}"/>Young Pet</div>
+    <div class="line_check"><input type="checkbox" checked="{% older_pet %}"/>Older Pet</div>
+    <a class="btn btn-success" on-click="search_pets">Search</a></div>
+
+<div class="User">
+    {{if auth.user_id is None:}}
+        {{=A('Sign Up', _class='btn btn-danger', _href=URL('default', 'user', args=['register']))}}
+		{{=A('Sign In', _class='btn btn-success', _style='margin-left: 10px', _href=URL('default', 'user', args=['login']))}}
+	{{else:}}
+        {{=A('New Pet', _class='btn btn-success', _href=URL('default', 'addpet'))}}
+    {{pass}}
+</div>
+
+<div class="load_all_pets"> <a class="btn btn-success" on-click="load_pets">Show all pets</a></div>
+
+</div>
+
+{% #if loading %}
+  <div id="load_spinner">
+    <i class="fa fa-spinner fa-pulse fa-4x"></i>
+  </div>
+{% /if %}
+
+<div class="pet_results_wrapper">
+<div class="search" class="row">
+ {% #pet_dict:pet_id %}
+      <div class="pets" class="col-md-3">
+       <div class="single_pet" ><h2 class="pet_name"><a href="{% pets_url + "/" + id %}"><b>{% name %}</b></h2></div>
+       <div class="pet_image"><img src="{{=URL('default', 'download')}}/{% pet_image %}" width="140" height="140" class="img-thumbnail" /></div>
+       <div class="date_posted">{% posted %}</div>
+      </div>
+ {% /pet_dict %}
+  </div>
+ </div>
+
+
+</script>
+
+
+<script>
+
+$(function() {
+
+  // Ractive object
+  var MAIN = new Ractive({
+    el: '#target',
+    template: '#template',
+    delimiters: ['{%', '%}'],
+    tripleDelimiters: ['{%%', '%%}'],
+    data: {
+      pet_dict: {},
+      pets_url: "{{=URL('default','pets')}}",
+      pet_id: "{{=pet_id}}",
+      list_o_pets: "",
+      loading: true,
+      search_done: false,
+      house_trained: false,
+      kid_friendly: false,
+      pet_friendly: false,
+      outdoor_pet: false,
+      indoor_pet: false,
+      frequent_exercise: false,
+      infrequent_exercise: false,
+      young_pet: false,
+      older_pet: false,
+      Cat_or_Dog: "any",
+      gender: "any"
+    },
+  });
+
+    $.ajax("{{=URL('default', 'load_pets_initial')}}",
+          {
+            method: 'POST',
+            success: function (data) {
+              MAIN.set('pet_dict', data['pet_dict']);
+              MAIN.set('loading', false);
+            }
+          }
+  );
+
+
+  // http://stackoverflow.com/questions/105034/create-guid-uuid-in-javascript
+  function generateUUID(){
+    var d = new Date().getTime();
+    if(window.performance && typeof window.performance.now === "function"){
+        d += performance.now();; //use high-precision timer if available
+    }
+    var uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+        var r = (d + Math.random()*16)%16 | 0;
+        d = Math.floor(d/16);
+        return (c=='x' ? r : (r&0x3|0x8)).toString(16);
+    });
+    return uuid;
+  }
+    //loads all pets when show pets button is pressed
+  MAIN.on('load_pets', function (e) {
+  MAIN.set('loading',true);
+  $.ajax("{{=URL('default', 'load_pets')}}",
+          {
+            method: 'POST',
+            success: function (data) {
+              MAIN.set('pet_dict', data['pet_dict']);
+              MAIN.set('loading', false);
+            }
+          }
+  );
+  });
+
+MAIN.on('search_pets', function (e) {
+    MAIN.set('loading', true);
+    MAIN.set('pet_dict', {});
+    user_selection = [];
+    if(MAIN.get("house_trained") == true){
+        user_selection.push("house_trained");
+    }
+    if(MAIN.get("kid_friendly") == true){
+        user_selection.push("kid_friendly");
+    }
+    if(MAIN.get("pet_friendly") == true){
+        user_selection.push("pet_friendly");
+    }
+    if(MAIN.get("outdoor_pet") == true){
+        user_selection.push("outdoor_pet");
+    }
+    if(MAIN.get("indoor_pet") == true){
+        user_selection.push("indoor_pet");
+    }
+    if(MAIN.get("frequent_exercise") == true){
+        user_selection.push("frequent_exercise");
+    }
+    if(MAIN.get("infrequent_exercise") == true){
+        user_selection.push("infrequent_exercise");
+    }
+    if(MAIN.get("young_pet") == true){
+        user_selection.push("young_pet");
+    }
+    if(MAIN.get("older_pet") == true){
+        user_selection.push("older_pet");
+    }
+    if(MAIN.get("Cat_or_Dog") == "dog"){
+        user_selection.push("dog");
+    }
+    if(MAIN.get("Cat_or_Dog") == "cat"){
+        user_selection.push("cat");
+    }
+    if(MAIN.get("Cat_or_Dog") == "any"){
+        user_selection.push("any_cat_dog");
+    }
+    if(MAIN.get("gender") == "male"){
+        user_selection.push("male");
+    }
+    if(MAIN.get("gender") == "female"){
+        user_selection.push("female");
+    }
+    if(MAIN.get("gender") == "any"){
+        user_selection.push("any_gender");
+    }
+
+     $.ajax({
+       url: "{{=URL('default', 'get_pets')}}",
+              data: {user_selection: user_selection },
+       method: "POST",
+       success: function(data) {
+         MAIN.set('loading', false);
+         MAIN.set('search_done', true);
+         MAIN.set('pet_dict', data['pet_dict']);
+       },
+       fail: function() {
+         $("#server_error").show();
+       }
+     });
+   });
+
+
+
+
+});
+</script>
